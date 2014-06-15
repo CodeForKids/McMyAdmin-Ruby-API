@@ -41,13 +41,14 @@ class CodeForKids
     # the rest take string
 
     def add_group_value(group, type, value)
-      url = URI.parse("#{@host}:#{@port}/data.json?req=addgroupvalue&group=#{group}&type=#{type}&value=#{value}")
-      request(url)
+      request({ req: 'addgroupvalue', group: group, type: type, value: value})
     end
     
     private
     
-    def request(url)
+    def request(params_hash)
+      query_params = URI.encode_www_form hash(params_hash)
+      url = URI.parse("#{@host}:#{@port}/data.json?#{query_params}")
       http = Net::HTTP.new url.host, url.port
       response = http.get("#{url.path}?#{url.query.to_s}", {'Content-Type' => 'application/json', 'Accept' => 'application/json'})
       data = response.body
