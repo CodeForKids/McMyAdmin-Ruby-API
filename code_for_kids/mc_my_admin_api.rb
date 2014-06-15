@@ -15,6 +15,8 @@ class CodeForKids
       login(user, pass)
     end
 
+
+
     def status
       request({req: 'GetStatus'})
     end
@@ -60,6 +62,12 @@ class CodeForKids
 
     def add_schedule_item(hours, mins, trigger_event, type, param = '')
       request({req: 'addscheduleitem', hours: hours, mins: mins, triggerevent: trigger_event, type: type, param: param})
+    end
+
+    # adds user to group specified.
+
+    def add_user_to_group(groupname, username)
+      add_group_value(groupname, 'groupmembers', username)
     end
 
     # ChangePassword
@@ -144,7 +152,9 @@ class CodeForKids
       request({req: 'dodiagnostics'})
     end
 
-    
+    #
+
+
 
     private
 
