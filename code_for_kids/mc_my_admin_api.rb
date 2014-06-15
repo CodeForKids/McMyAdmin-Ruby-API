@@ -104,6 +104,48 @@ class CodeForKids
       request({req: 'deletebackup', backupid: backup_ID})
     end
 
+    # DeleteGroup
+    ##########
+    # name - string
+
+    def delete_group(name)
+      request({req: 'deletegroup', name: name})
+    end
+
+    # DeleteUser
+    ##########
+    # username - string
+
+    def delete_user(username)
+      request({req: 'deleteuser', username: username})
+    end
+
+    # DeleteWorld
+    ##########
+    # none
+
+    def delete_world
+      request({req: 'deleteworld'})
+    end
+
+    # DelScheduleItem
+    ##########
+    # index - int32
+
+    def delete_schedule_item(index)
+      request({req: 'delscheduleitem', index: index})
+    end
+
+    # DoDiagnositcs
+    ##########
+    # none
+
+    def do_diagnostics
+      request({req: 'dodiagnostics'})
+    end
+
+    
+
     private
 
     attr_accessor :session_id, :host, :port
