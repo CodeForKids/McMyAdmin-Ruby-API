@@ -6,8 +6,6 @@ require 'uri'
 
 class CodeForKids
   class McMyAdminAPI
-    attr_accessor :session_id, :host, :port
-
     #initializes the connection. Sets the session_id
     #host and port will be saved for arguments for each request
 
@@ -18,7 +16,7 @@ class CodeForKids
     end
 
     def status
-      request({req: 'GetStatus' })
+      request({req: 'GetStatus'})
     end
 
     #AddGroupValue
@@ -42,7 +40,7 @@ class CodeForKids
     # the rest take string
 
     def add_group_value(group, type, value)
-      request({req: 'addgroupvalue', group: group, type: type, value: value })
+      request({req: 'addgroupvalue', group: group, type: type, value: value})
     end
 
     # AddLicence
@@ -70,7 +68,7 @@ class CodeForKids
     # new_pass - string
 
     def change_password(old_pass, new_pass)
-      request({ req: 'changepassword', oldpassword: old_pass, newpassword: new_pass})
+      request({req: 'changepassword', oldpassword: old_pass, newpassword: new_pass})
     end
 
     def change_user_password(user, pass)
@@ -79,40 +77,37 @@ class CodeForKids
 
     private
 
-    def request(params_hash)
-      params_hash = params_hash.merge({Token: '', MCMASESSIONID: @session_id})
-      query_params = URI.encode_www_form(params_hash)
-      url = URI.parse("http://#{@host}:#{@port}/data.json?#{query_params}")
-      puts "URL: #{url.to_s}"
-      http = Net::HTTP.new url.host, url.port
-      response = http.get("#{url.path}?#{url.query.to_s}", {'Content-Type' => 'application/json', 'Accept' => 'application/json'})
+    attr_accessor :session_id, :host, :port
 
+    def request(params_hash)
+      response = perform_request(params_hash)
       case response
       when Net::HTTPSuccess
         JSON.parse response.body
       else
-        # response code isn't a 200; raise an exception
         response.error!
       end
     end
 
     def login(user, pass)
-      url = URI.parse("http://#{@host}:#{@port}/data.json?Username=#{user}&Password=#{pass}&Token=&req=login&MCMASESSIONID=")
+      response = perform_request({req: 'Login', username: user, password: pass})
+      json_response = JSON.parse response.body
 
-      http = Net::HTTP.new url.host, url.port
-      response = http.get("#{url.path}?#{url.query.to_s}", {'Content-Type' => 'application/json', 'Accept' => 'application/json'})
-      data = response.body
-
-      case response
-      when Net::HTTPRedirection
-        # repeat the request using response['Location']
-      when Net::HTTPSuccess
-        json_response = JSON.parse response.body
+      if json_response["success"]
         @session_id = json_response['MCMASESSIONID']
+        json_response
       else
-        # response code isn't a 200; raise an exception
-        response.error!
+        raise "Could not authenticate user. Status Code: #{json_response['status']}"
       end
+    end
+
+    def perform_request(params_hash)
+      params_hash = params_hash.merge({Token: '', MCMASESSIONID: @session_id})
+      query_params = URI.encode_www_form(params_hash)
+
+      url = URI.parse("http://#{@host}:#{@port}/data.json?#{query_params}")
+      http = Net::HTTP.new(url.host, url.port)
+      response = http.get("#{url.path}?#{url.query.to_s}", {'Content-Type' => 'application/json', 'Accept' => 'application/json'})
     end
 
   end
