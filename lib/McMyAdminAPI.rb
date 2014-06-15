@@ -180,7 +180,7 @@ module CodeForKids
     def whitelist(username)
       request({req: 'sendchat', message: "/whitelist add #{username}"})
 
-      sleep 0.1 # Give server time to add to whitelist
+      sleep 0.5 # Give server time to add to whitelist
 
       if is_maybe_whitelisted?(username)
         result_hash(200, "Successfully added #{username} to whitelist.")
