@@ -6,17 +6,19 @@ require 'uri'
 
 class CodeForKids
   class McMyAdminAPI
-    sessionID = ""
-    host = ""
-    port = ""
+    attr_accessor :session_id, :host, :port
 
-    #initializes the connection. Sets the sessionID
-    #host and port will be arguments for every function
+    #initializes the connection. Sets the session_id
+    #host and port will be saved for arguments for each request
 
     def initialize(host, user, pass, port = '8080')
-      self.host = host
-      self.port = port
+      @host = host
+      @port = port
       login(user, pass)
+    end
+
+    def status
+      request({req: 'GetStatus' })
     end
 
     #AddGroupValue
@@ -40,7 +42,7 @@ class CodeForKids
     # the rest take string
 
     def add_group_value(group, type, value)
-      request({ req: 'addgroupvalue', group: group, type: type, value: value })
+      request({req: 'addgroupvalue', group: group, type: type, value: value })
     end
 
     # AddLicence
@@ -48,7 +50,7 @@ class CodeForKids
     # newkey - String
 
     def add_licence(newkey)
-      request({ req: 'addlicence', newkey: newkey})
+      request({req: 'addlicence', newkey: newkey})
     end
 
     # AddScheduleItem
@@ -59,7 +61,7 @@ class CodeForKids
     # Param - *Optional* - String
 
     def add_schedule_item(hours, mins, trigger_event, type, param = '')
-      request({ req: 'addscheduleitem', hours: hours, mins: mins, triggerevent: trigger_event, type: type, param: param})
+      request({req: 'addscheduleitem', hours: hours, mins: mins, triggerevent: trigger_event, type: type, param: param})
     end
 
     # ChangePassword
@@ -78,14 +80,16 @@ class CodeForKids
     private
 
     def request(params_hash)
-      query_params = URI.encode_www_form hash(params_hash)
-      url = URI.parse("#{@host}:#{@port}/data.json?#{query_params}")
+      params_hash = params_hash.merge({Token: '', MCMASESSIONID: @session_id})
+      query_params = URI.encode_www_form(params_hash)
+      url = URI.parse("http://#{@host}:#{@port}/data.json?#{query_params}")
+      puts "URL: #{url.to_s}"
       http = Net::HTTP.new url.host, url.port
       response = http.get("#{url.path}?#{url.query.to_s}", {'Content-Type' => 'application/json', 'Accept' => 'application/json'})
-      data = response.body
 
+      case response
       when Net::HTTPSuccess
-        response.body
+        JSON.parse response.body
       else
         # response code isn't a 200; raise an exception
         response.error!
@@ -93,7 +97,7 @@ class CodeForKids
     end
 
     def login(user, pass)
-      url = URI.parse("#{@host}:#{@port}/data.json?Username=#{user}&Password=#{pass}&Token=&req=login&MCMASESSIONID=")
+      url = URI.parse("http://#{@host}:#{@port}/data.json?Username=#{user}&Password=#{pass}&Token=&req=login&MCMASESSIONID=")
 
       http = Net::HTTP.new url.host, url.port
       response = http.get("#{url.path}?#{url.query.to_s}", {'Content-Type' => 'application/json', 'Accept' => 'application/json'})
@@ -104,13 +108,14 @@ class CodeForKids
         # repeat the request using response['Location']
       when Net::HTTPSuccess
         json_response = JSON.parse response.body
-        sessionID = json_response['MCMASESSIONID']
+        @session_id = json_response['MCMASESSIONID']
       else
         # response code isn't a 200; raise an exception
         response.error!
       end
     end
+
+  end
 end
 
-cfk_api = CodeForKids::McMyAdminAPI.new('host', 'username', 'password')
-cfk_api.getStatus()
+
