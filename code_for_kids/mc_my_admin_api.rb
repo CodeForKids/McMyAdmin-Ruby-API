@@ -7,27 +7,16 @@ require 'uri'
 class CodeForKids
   class McMyAdminAPI
     sessionID = ""
+    host = ""
+    port = ""
 
     #initializes the connection. Sets the sessionID
     #host and port will be arguments for every function
 
     def initialize(host, user, pass, port = '8080')
-      url = URI.parse("#{host}:#{port}/data.json?Username=#{user}&Password=#{pass}&Token=&req=login&MCMASESSIONID=")
-      http = Net::HTTP.new url.host, url.port
-      response = http.get("#{url.path}?#{url.query.to_s}", {'Content-Type' => 'application/json', 'Accept' => 'application/json'})
-      data = response.body
-
-      case response
-      when Net::HTTPRedirection
-        # repeat the request using response['Location']
-      when Net::HTTPSuccess
-        json_response = JSON.parse response.body
-        sessionID = json_response['MCMASESSIONID']
-      else
-        # response code isn't a 200; raise an exception
-        response.error!
-      end
-
+      self.host = host
+      self.port = port
+      login(user, pass)
     end
 
     #AddGroupValue
@@ -51,8 +40,14 @@ class CodeForKids
     # CanBuild and CanInteract take boolean
     # the rest take string
 
-    def add_group_value(host, port, group, type, value)
-      url = URI.parse("#{host}:#{port}/data.json?req=addgroupvalue&group=#{group}&type=#{type}&value=#{value}")
+    def add_group_value(group, type, value)
+      url = URI.parse("#{@host}:#{@port}/data.json?req=addgroupvalue&group=#{group}&type=#{type}&value=#{value}")
+      request(url)
+    end
+    
+    private
+    
+    def request(url)
       http = Net::HTTP.new url.host, url.port
       response = http.get("#{url.path}?#{url.query.to_s}", {'Content-Type' => 'application/json', 'Accept' => 'application/json'})
       data = response.body
@@ -63,7 +58,26 @@ class CodeForKids
         # response code isn't a 200; raise an exception
         response.error!
       end
-  end
+    end
+    
+    def login(user, pass)
+      url = URI.parse("#{@host}:#{@port}/data.json?Username=#{user}&Password=#{pass}&Token=&req=login&MCMASESSIONID=")
+      
+      http = Net::HTTP.new url.host, url.port
+      response = http.get("#{url.path}?#{url.query.to_s}", {'Content-Type' => 'application/json', 'Accept' => 'application/json'})
+      data = response.body
+
+      case response
+      when Net::HTTPRedirection
+        # repeat the request using response['Location']
+      when Net::HTTPSuccess
+        json_response = JSON.parse response.body
+        sessionID = json_response['MCMASESSIONID']
+      else
+        # response code isn't a 200; raise an exception
+        response.error!
+      end
+    end
 end
 
 cfk_api = CodeForKids::McMyAdminAPI.new('host', 'username', 'password')
