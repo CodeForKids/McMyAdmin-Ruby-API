@@ -62,6 +62,20 @@ module CodeForKids
       request({req: 'addscheduleitem', hours: hours, mins: mins, triggerevent: trigger_event, type: type, param: param})
     end
 
+    # add_user_to_group
+    ##########
+    # groupname, string
+    # username - string
+
+    def add_user_to_group(groupname, username)
+      add_group_value(groupname, 'groupmembers', username)
+      if group_info(groupname)['info']['Members'].include?(username)
+        puts "Successfully added #{username} to the #{groupname} group."
+      else
+        puts "Did not Successfully added #{username} to the #{groupname} group, check with the group list to be certain."
+      end
+    end
+
     # ChangePassword
     ##########
     # old_pass - string
@@ -102,6 +116,50 @@ module CodeForKids
 
     def delete_backup(backup_ID)
       request({req: 'deletebackup', backupid: backup_ID})
+    end
+
+    # DeleteGroup
+    ##########
+    # name - string
+
+    def delete_group(name)
+      request({req: 'deletegroup', name: name})
+    end
+
+    # DeleteUser
+    ##########
+    # username - string
+
+    def delete_user(username)
+      request({req: 'deleteuser', username: username})
+    end
+
+    # DeleteWorld
+    ##########
+    # none
+
+    def delete_world
+      request({req: 'deleteworld'})
+    end
+
+    # DelScheduleItem
+    ##########
+    # index - int32
+
+    def delete_schedule_item(index)
+      request({req: 'delscheduleitem', index: index})
+    end
+
+    # DoDiagnositcs
+    ##########
+    # none
+
+    def do_diagnostics
+      request({req: 'dodiagnostics'})
+    end
+
+    def group_info(group_name)
+      request({req: 'getgroupinfo', group: group_name})
     end
 
     # Whitelist a User
@@ -150,7 +208,7 @@ module CodeForKids
         @session_id = json_response['MCMASESSIONID']
         json_response
       else
-        raise "Could not authenticate user. Status Code: #{json_response['status']}"
+        puts "Could not authenticate user. Status Code: #{json_response['status']}"
       end
     end
 
@@ -164,6 +222,11 @@ module CodeForKids
     end
 
     def is_maybe_whitelisted?(username)
+      # There is no sure fire way to check if whitelisting passed
+      # Instead, we check the last little bit of logs (after a small sleep)
+      # Then we check if the message includes the whitelisted success phrase
+      # If it does not, the server could just be slow.
+      # BE WARNED.
       chat_data = request({req: 'getchat', since: 1})["chatdata"]
       last_message = chat_data.last['message']
       last_message.include?("Added #{username} to white-list")
