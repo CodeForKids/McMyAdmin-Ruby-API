@@ -1,6 +1,8 @@
 #!/usr/bin/ruby
 $: << "."
 require 'McMyAdminAPI'
-c = CodeForKids::McMyAdminAPI.new('minecraft.codeforkids.ca', ARGV[0], ARGV[1])
 
-# Put commands here!
+c = CodeForKids::McMyAdminAPI.new('minecraft.codeforkids.ca')
+c.login(ENV['MC_USERNAME'], ENV['MC_PASSWORD'])
+
+# Add code here

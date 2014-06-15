@@ -9,10 +9,21 @@ module CodeForKids
     #initializes the connection. Sets the session_id
     #host and port will be saved for arguments for each request
 
-    def initialize(host, user, pass, port = '8080')
+    def initialize(host, port = '8080')
       @host = host
       @port = port
-      login(user, pass)
+    end
+
+    def login(user, pass)
+      response = perform_request({req: 'Login', username: user, password: pass})
+      json_response = JSON.parse response.body
+
+      if json_response["success"]
+        @session_id = json_response['MCMASESSIONID']
+        json_response
+      else
+        result_hash(json_response['status'], "Could not authenticate user.")
+      end
     end
 
     def status
@@ -70,9 +81,9 @@ module CodeForKids
     def add_user_to_group(groupname, username)
       add_group_value(groupname, 'groupmembers', username)
       if group_info(groupname)['info']['Members'].include?(username)
-        puts "Successfully added #{username} to the #{groupname} group."
+        result_hash(200, "Successfully added #{username} to the #{groupname} group.")
       else
-        puts "Did not Successfully added #{username} to the #{groupname} group, check with the group list to be certain."
+        result_hash(404, "Did not Successfully added #{username} to the #{groupname} group, check with the group list to be certain.")
       end
     end
 
@@ -172,9 +183,9 @@ module CodeForKids
       sleep 0.1 # Give server time to add to whitelist
 
       if is_maybe_whitelisted?(username)
-        puts "Successfully added #{username} to whitelist."
+        result_hash(200, "Successfully added #{username} to whitelist.")
       else
-        raise "May not have added #{username} to whitelist, please manually check with the whitelist_list command"
+        result_hash(404, "May not have added #{username} to whitelist, please manually check with the whitelist_list command")
       end
     end
 
@@ -190,25 +201,21 @@ module CodeForKids
 
     attr_accessor :session_id, :host, :port
 
-    def request(params_hash)
-      response = perform_request(params_hash)
-      case response
-      when Net::HTTPSuccess
-        JSON.parse response.body
-      else
-        response.error!
-      end
+    def result_hash(status, message)
+      {status: status, message: message}
     end
 
-    def login(user, pass)
-      response = perform_request({req: 'Login', username: user, password: pass})
-      json_response = JSON.parse response.body
+    def request(params_hash)
+      return result_hash(401, "Please login first") if @session_id.nil?
 
-      if json_response["success"]
-        @session_id = json_response['MCMASESSIONID']
+      response = perform_request(params_hash)
+      json_response = JSON.parse(response.body)
+
+      case response
+      when Net::HTTPSuccess
         json_response
       else
-        puts "Could not authenticate user. Status Code: #{json_response['status']}"
+        result_hash(json_response["status"], response.body)
       end
     end
 
