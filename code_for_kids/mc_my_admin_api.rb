@@ -71,8 +71,37 @@ class CodeForKids
       request({req: 'changepassword', oldpassword: old_pass, newpassword: new_pass})
     end
 
+    # ChangeUserPassword
+    ##########
+    # user - string
+    # pass - string
+
     def change_user_password(user, pass)
       request({req: 'changeuserpassword', username: user, newpassword: pass})
+    end
+
+    # CreateGroup
+    ##########
+    # name - string
+
+    def create_group(name)
+      request({req: 'creategroup', name: name})
+    end
+
+    # CreateUser
+    ##########
+    # username - string
+
+    def create_user(username)
+      request({req: 'createuser', newusername: username})
+    end
+
+    # DeleteBackup
+    ##########
+    # backup_ID - string
+
+    def delete_backup(backup_ID)
+      request({req: 'deletebackup', backupid: backup_ID})
     end
 
     private
@@ -112,5 +141,3 @@ class CodeForKids
 
   end
 end
-
-
