@@ -133,16 +133,16 @@ module CodeForKids
     ##########
     # name - string
 
-    def delete_group(name)
-      request({req: 'deletegroup', name: name})
+    def delete_group(groupname)
+      request({req: 'deletegroup', name: groupname})
     end
 
     # DeleteUser
     ##########
     # username - string
 
-    def delete_user(username)
-      request({req: 'deleteuser', username: username})
+    def delete_user(name)
+      request({req: 'deleteuser', username: name})
     end
 
     # DeleteWorld
@@ -157,8 +157,8 @@ module CodeForKids
     ##########
     # index - int32
 
-    def delete_schedule_item(index)
-      request({req: 'delscheduleitem', index: index})
+    def delete_schedule_item(my_index)
+      request({req: 'delscheduleitem', index: my_index})
     end
 
     # DoDiagnositcs
@@ -168,10 +168,85 @@ module CodeForKids
     def do_diagnostics
       request({req: 'dodiagnostics'})
     end
+	
+	# DownloadBukgetPluigin
+	#########
+	# PluginName - string
+	
+	def download_bukget_plugin(name)
+		request({req: 'downloadbukgetplugin', pluginname: name})
+	end
+	
+	# GetAllGroupInfo
+	##########
+	# none
+	
+	def get_all_group_info
+		request({req: 'getallgroupinfo'})
+	end
+	
+	# GetAPISpec
+	##########
+	# none
+	
+	def get_api_spec
+		request({req: 'getapispec'})
+	end
+	
+	# GetBackups
+	##########
+	# none
+	
+	def get_backups
+		request({req: 'getbackups'})
+	end
+	
+	# GetBackupStatus
+	#########
+	# none
+	
+	def get_backup_status
+		request({ req: 'getbackupstatus'})
+	end
+	
+	# GetBukgetCategories
+	#########
+	# none
+	
+	def get_bukget_categories
+		request({ req: 'getbukgetcategories'})
+	end
+	
+	# GetBukgetPluginInfo
+	#########
+	# PluginName - string
+	
+	def get_bukget_plugin_info(name)
+		request({ req: 'getbukgetplugininfo', pluginname: name})
+	end
+	
+	# GetBukgetPluginsCategory
+	##########
+	# categoryname - string
+	# start - int32
+	
+	def get_bukget_plugins_in_category(name, start_index)
+		request({ req: 'getbukgetpluginscategory', categoryname: name, start: start_index})
+	end
+	
+	# GetChat
+	#########
+	# start_time - int64
+	
+	def get_chat(start_time)
+		request({ req: 'getchat', since: start_time})
+	
 
     def group_info(group_name)
       request({req: 'getgroupinfo', group: group_name})
     end
+	
+	
 
     # Whitelist a User
     ##########
@@ -234,7 +309,7 @@ module CodeForKids
       # Then we check if the message includes the whitelisted success phrase
       # If it does not, the server could just be slow.
       # BE WARNED.
-      chat_data = request({req: 'getchat', since: 1})["chatdata"]
+      chat_data = get_chat(1)["chatdata"]
       last_message = chat_data.last['message']
       last_message.include?("Added #{username} to white-list")
     end
