@@ -192,7 +192,7 @@ module CodeForKids
     # none
 
     def get_backup_status
-      request({ req: 'getbackupstatus'})
+      request({req: 'getbackupstatus'})
     end
 
     # GetBukgetCategories
@@ -200,7 +200,7 @@ module CodeForKids
     # none
 
     def get_bukget_categories
-      request({ req: 'getbukgetcategories'})
+      request({req: 'getbukgetcategories'})
     end
 
     # GetBukgetPluginInfo
@@ -208,7 +208,7 @@ module CodeForKids
     # PluginName - string
 
     def get_bukget_plugin_info(name)
-      request({ req: 'getbukgetplugininfo', pluginname: name})
+      request({req: 'getbukgetplugininfo', pluginname: name})
     end
 
     # GetBukgetPluginsCategory
@@ -217,7 +217,7 @@ module CodeForKids
     # start - int32
 
     def get_bukget_plugins_in_category(name, start)
-      request({ req: 'getbukgetpluginscategory', categoryname: name, start: start})
+      request({req: 'getbukgetpluginscategory', categoryname: name, start: start})
     end
 
     # GetChat
@@ -225,7 +225,7 @@ module CodeForKids
     # since - int64
 
     def get_chat(since)
-      request({ req: 'getchat', since: since})
+      request({req: 'getchat', since: since})
     end
 
     # GetConfig
@@ -233,7 +233,7 @@ module CodeForKids
     # key - string
 
     def get_config(key)
-      request({ req: 'getconfig', key: key})
+      request({req: 'getconfig', key: key})
     end
 
     # GetDeleteStatus
@@ -356,7 +356,7 @@ module CodeForKids
     # none
 
     def get_server_info
-      request({'getserverinfo'})
+      request({req: 'getserverinfo'})
     end
 
     # GetStatus
@@ -482,7 +482,7 @@ module CodeForKids
     # index - int32
 
     def runscheduleitem(index)
-      request(req: 'runscheduleitem', index: index})
+      request({req: 'runscheduleitem', index: index})
     end
 
     # ScanPlugins
