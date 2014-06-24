@@ -51,7 +51,7 @@ module CodeForKids
     # the rest take string
 
     def add_group_value(name, type, value)
-      request({req: 'addgroupvalue', group: group, type: type, value: value})
+      request({req: 'addgroupvalue', group: name, type: type, value: value})
     end
 
     # AddLicence
